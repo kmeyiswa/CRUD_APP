@@ -4,7 +4,7 @@
 
   <div class="mb-3">
     <label for="first_name" class="form-label"> Customer ID </label>
-    <input type="text" class="form-control" id="first_name">
+    <input type="text" class="form-control" id="customer_id" readonly>
   </div>
 
   <div class="mb-3">
@@ -22,8 +22,11 @@
     <input type="text" class="form-control" id="phone_number">
   </div>
 
-  <button class="btn btn-primary"> Save </button>
-  <button class="btn btn-primary"> Cancel Changes </button>
+  <button class="btn btn-primary" id="save_changes"> Save </button>
+  <button class="btn btn-primary" id="cancel_changes"> Cancel Changes </button>
 
+  <div class="alert alert-success invisible" id="save_success_message" role="alert">
+    Changes Saved!
+  </div>
 
 </div>
