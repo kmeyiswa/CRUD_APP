@@ -86,7 +86,7 @@
 
       // filter the 'search_data' to match the variable 'searchInput'
       // Go to every dataRecord/ row
-      var resultsArray = search_data.filter(function(searchDataRecord){
+      var resultsArray = searchInput === "" ? [] : search_data.filter(function(searchDataRecord){
 
         // search for the words in 'searchWords' if the word appears in one of the column and then return it
         return searchWords.every(function(word){
@@ -113,6 +113,10 @@
         var firstNameColumn = tr.querySelector(".firstName")
         var lastNameColumn = tr.querySelector(".lastName")
 
+        // get the delete button and set the dataset to customer id
+        var deleteButton = tr.querySelector(".delete-button") 
+        deleteButton.dataset.customerId = dataRowRecord[0]
+
         custIDColumn.textContent = dataRowRecord[0]
         firstNameColumn.textContent = dataRowRecord[1]
         lastNameColumn.textContent = dataRowRecord[2]
@@ -125,6 +129,8 @@
 
     }
 
+
+
     // Everytime there is an input inside 'app' id  we want to run 'inputEventHandler'
     document.getElementById("app").addEventListener("input", inputEventHandler)
 
@@ -136,6 +142,49 @@
         search();
       }
 
+    }
+
+        // Everytime there is a click event inside 'app' id  we want to run 'clickEventHandler'
+    document.getElementById("app").addEventListener("click", clickEventHandler)
+    function clickEventHandler(e){
+      // e.target is the current input we're on
+
+      // if the current click we're in is of class 'delete-button', run deleteCustomer function
+      if(e.target.matches(".delete-button")){
+        deleteCustomer(e);
+      }
+      
+      if(e.target.matches(".before-delete-button")){
+        displayConfirmationDelete(e);
+      }
+
+    }
+
+    function deleteCustomer(event){
+      // get the customer ID from the button clicked
+      var custID = event.target.dataset.customerId;
+
+      // call the backend function to delete row with matching ID
+      google.script.run.withSuccessHandler(function(){
+        // after row is successfully removed from the database, remove it from the UI table
+        // remove the closest element with class 'result-box'
+        event.target.closest(".result-box").remove()
+      }).deleteById(custID);
+
+    }
+
+    function displayConfirmationDelete(e){
+      if(e.target.dataset.buttonState === "delete"){
+
+        e.target.previousElementSibling.classList.remove("d-none")
+        e.target.textContent = "Cancel"
+        e.target.dataset.buttonState = "cancel"
+
+      } else {
+        e.target.previousElementSibling.classList.add("d-none")
+        e.target.textContent = "Delete"
+        e.target.dataset.buttonState = "delete"
+      }
     }
 
     // Load the page depending on the options passed
