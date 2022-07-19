@@ -68,6 +68,76 @@
   
   <script>
 
+    // Store search data in memory when the "SEARCH" page is loaded
+    var search_data;
+    function setDataForSearch(){
+      google.script.run.withSuccessHandler(function(searchDataReturned){
+        search_data = searchDataReturned.slice()
+      }).getDataForSearch();
+    }
+
+    // Search through the 'search_data' and populate table data
+    function search(){
+
+      var searchInput =  document.getElementById("searchInput").value.toString().toLowerCase().trim();
+      var searchWords = searchInput.split(/\s+/);
+      var searchColumns = [1,2];
+
+
+      // filter the 'search_data' to match the variable 'searchInput'
+      // Go to every dataRecord/ row
+      var resultsArray = search_data.filter(function(searchDataRecord){
+
+        // search for the words in 'searchWords' if the word appears in one of the column and then return it
+        return searchWords.every(function(word){
+          return searchColumns.some(function(colIndex){
+            return searchDataRecord[colIndex].toString().toLowerCase().indexOf(word) !==-1;
+          })
+        })
+
+        // for each 'searchDataRecord', return data that matches the 'searchInput' index 1 data
+        // return searchDataRecord[1].toString().toLowerCase().indexOf(searchInput) !== -1;
+      });
+
+      // populating 'resultsArray'
+      var searchResultsBox = document.getElementById("searchResults")
+      var templateBox = document.getElementById("rowTemplate")
+      var template =  templateBox.content;
+
+      searchResultsBox.innerHTML = "" // clear populated data on every input
+
+      resultsArray.forEach(function(dataRowRecord){
+
+        var tr = template.cloneNode(true)
+        var custIDColumn = tr.querySelector(".custID")
+        var firstNameColumn = tr.querySelector(".firstName")
+        var lastNameColumn = tr.querySelector(".lastName")
+
+        custIDColumn.textContent = dataRowRecord[0]
+        firstNameColumn.textContent = dataRowRecord[1]
+        lastNameColumn.textContent = dataRowRecord[2]
+
+        searchResultsBox.appendChild(tr)
+
+      })
+
+
+
+    }
+
+    // Everytime there is an input inside 'app' id  we want to run 'inputEventHandler'
+    document.getElementById("app").addEventListener("input", inputEventHandler)
+
+    function inputEventHandler(e){
+      // e.target is the current input we're on
+
+      // if the current input we're in is of id '#searchInput', run search function
+      if(e.target.matches("#searchInput")){
+        search();
+      }
+
+    }
+
     // Load the page depending on the options passed
     function loadView(options){
       `options: type object. can be a function`
@@ -83,7 +153,8 @@
     // When the "search" link is clicked, load and show the SEARCH page
     document.getElementById("search_link").addEventListener("click", loadSearchView);
     function loadSearchView(){
-      loadView({func: "loadSearchView"});
+      // after loading the search page, store search data in memory (i.e search_data)
+      loadView({func: "loadSearchView", callback: setDataForSearch});
     }
 
     // When the "add customer" link is clicked, load and show the ADD CUSTOMER page
