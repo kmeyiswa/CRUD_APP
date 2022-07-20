@@ -57,6 +57,28 @@ function editCustomerById(id, customerInfo){
 
 }
 
+function addCustomer(customerInfo){
+  const ss = SpreadsheetApp.getActiveSpreadsheet()
+  const ws = ss.getSheetByName("Customers")
+  const uniqueIDs = ws.getRange(2,1, ws.getLastRow()-1, 1).getValues()
+
+  var maxNum = 0;
+  uniqueIDs.forEach(r => {
+    // if r[0] > maxNum: maxNum = r[0] else maxNum is the same
+    maxNum = r[0] > maxNum ? r[0] : maxNum
+  })
+
+  var newID = maxNum +1
+
+  ws.appendRow([
+                  newID,
+                  customerInfo.firstName,
+                  customerInfo.lastName,
+                  customerInfo.phoneNumber
+  ])
+
+}
+
 
 
 
